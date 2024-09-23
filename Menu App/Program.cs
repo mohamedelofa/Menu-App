@@ -7,7 +7,7 @@ namespace Menu_App
 {
     internal class Program
     {
-        static Employee[] Employees = Array.Empty<Employee>();
+        static List<Employee> Employees = new List<Employee>();
         static void Main(string[] args)
         {
             //int id = 0;
@@ -17,10 +17,10 @@ namespace Menu_App
             int index = 0;
             Gender gender;
             int size = 0;
-            string[] Orders = { " New ", " Display ", " Sort "," Exit " };
+            string[] Orders = { " New ", " Display ", " Sort "," Search "," Exit " };
             bool loob = true;
             int Xdist = Console.WindowWidth / 2;
-            int Ydist = Console.WindowHeight / 4;
+            int Ydist = Console.WindowHeight / (Orders.Length + 1);
             int height = 0;
             while(loob)
             {
@@ -54,21 +54,21 @@ namespace Menu_App
                             case 0:
                                 Console.Write("Enter number of employees you want to add : ");
                                 int n = Convert.ToInt32(Console.ReadLine());
-                                size += n;
-                                New(size);
+                                //size += n;
+                                New(n);
                                 break;
                             case 1:
-                                if (Employees.Length == 0)
+                                if (Employees.Count == 0)
                                 {
                                     Console.WriteLine("No employees to display");
                                     Console.Write("Enter any key to return...... : ");
                                     Console.ReadKey();
                                 }
                                 else
-                                    Display();
+                                    Display(Employees);
                                 break;
                             case 2:
-								if (Employees.Length == 0)
+								if (Employees.Count == 0)
 								{
 									Console.WriteLine("No employees to Sort");
 									//Console.Write("Enter any key to return...... : ");
@@ -87,10 +87,10 @@ namespace Menu_App
                                             switch(namechoice)
                                             {
                                                 case 1:
-                                                    Array.Sort(Employees, new SortArrayWithNameAsc());
+                                                    Employees.Sort(new SortArrayWithNameAsc());
                                                     break;
                                                 case 2:
-													Array.Sort(Employees, new SortArrayWithNameDsc());
+													Employees.Sort( new SortArrayWithNameDsc());
 													break;
                                             }
 											Console.WriteLine("Done........");
@@ -101,10 +101,10 @@ namespace Menu_App
 											switch (agechoice)
 											{
 												case 1:
-													Array.Sort(Employees, new SortArrayWithAgeAsc());
+													Employees.Sort(new SortArrayWithAgeAsc());
 													break;
 												case 2:
-													Array.Sort(Employees, new SortArrayWithAgeDsc());
+													Employees.Sort(new SortArrayWithAgeDsc());
 													break;
 											}
 											Console.WriteLine("Done........");
@@ -115,10 +115,10 @@ namespace Menu_App
 											switch (idchoice)
 											{
 												case 1:
-													Array.Sort(Employees, new SortArrayWithIdAsc());
+													Employees.Sort(new SortArrayWithIdAsc());
 													break;
 												case 2:
-													Array.Sort(Employees, new SortArrayWithIdDsc());
+													Employees.Sort(new SortArrayWithIdDsc());
 													break;
 											}
 											Console.WriteLine("Done........");
@@ -129,6 +129,26 @@ namespace Menu_App
 								Console.ReadKey();
 								break;
                             case 3:
+								if (Employees.Count == 0)
+								{
+									Console.WriteLine("No employees to search");
+									Console.Write("Enter any key to return...... : ");
+									Console.ReadKey();
+								}
+                                else
+                                {
+                                    List<Employee> searched = Search();
+                                    if (searched.Count == 0)
+                                    {
+                                        Console.WriteLine("No employees exist with this data");
+                                        Console.Write("Enter any key to return...... : ");
+                                        Console.ReadKey();
+                                    }
+                                    else
+                                        Display(searched);
+                                }
+								break;
+                            case 4:
                                 loob = false;
                                 break;
                         }
@@ -138,12 +158,13 @@ namespace Menu_App
         }
         private static void New(int n)
         {
-            Employee[] NewEmployees = new Employee[n];
-            for(int i = 0; i < Employees.Length; i++)
-            {
-                NewEmployees[i] = Employees[i];
-            }
-            for (int i = Employees.Length; i < n; i++)
+            //Employee[] NewEmployees = new Employee[n];
+            //for(int i = 0; i < Employees.Count; i++)
+            //{
+            //    NewEmployees[i] = Employees[i];
+            //}
+            int limit = n + Employees.Count;
+            for (int i = Employees.Count; i < limit; i++)
             {
                 Console.WriteLine("Add New Employee: ");
                 //Console.Write($"Enter Id : ");
@@ -161,14 +182,15 @@ namespace Menu_App
                     g = Console.ReadLine().ToLower();
                 } while (g != "male" && g != "female");
                 Gender gender = g == "male" ? Gender.male : Gender.female;
-                NewEmployees[i] = new Employee(name,salary,gender,age);
+                //NewEmployees[i] = new Employee(name,salary,gender,age);
+                Employees.Add(new Employee(name, salary, gender, age));
             }
-            Employees = NewEmployees;
+            //Employees = NewEmployees;
             Console.WriteLine("Data Saved Successfully");
             Console.Write("Enter any key to return...... : ");
             Console.ReadKey();
         }
-        private static void Display()
+        private static void Display(List<Employee> emps)
         {
            
             Console.WriteLine("Display All : ");
@@ -179,10 +201,39 @@ namespace Menu_App
             //    Console.WriteLine(emp);
             //}
 
-            Employees.Display();
+            emps.Display();
+			Console.Write("Enter any key to return...... : ");
+			Console.ReadKey();
+		}
 
-            Console.Write("Enter any key to return...... : ");
-            Console.ReadKey();
+        private static List<Employee> Search()
+        {
+            List<Employee> Searched = new List<Employee>();
+            Console.WriteLine("Choose what you want to search based on : \n1.Name\n2.Id");
+            int choice = int.Parse(Console.ReadLine());
+            Console.Clear();
+            switch(choice)
+            {
+                case 1:
+                    Console.Write("Enter Name : ");
+                    string name = Console.ReadLine();
+                    foreach(Employee e in Employees)
+                    {
+                        if(e.Name.ToLower() == name.ToLower())
+                            Searched.Add(e);
+                    }
+                    break;
+                case 2:
+					Console.Write("Enter Id : ");
+					int id = int.Parse(Console.ReadLine());
+					foreach (Employee e in Employees)
+					{
+						if (e.Id == id)
+							Searched.Add(e);
+					}
+					break;
+            }
+            return Searched;
         }
     }
 }

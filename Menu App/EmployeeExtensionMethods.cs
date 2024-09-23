@@ -9,7 +9,7 @@ namespace Menu_App
 {
     static class  EmployeeExtensionMethods
     {
-        public static void Display(this Employee[] employees)
+        public static void Display(this List<Employee> employees)
         {
             foreach(var employee in employees)
             {
